@@ -5,7 +5,7 @@
 var clientId = '277172047453-p51btc78lu7fatpjn3kkk75dula5kao3';
 var apiKey = 'AIzaSyBEfyrju1DaN8Tv-zALl1uBPhwNSJPycnw'
 var discoveryDocs = [
-	"https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest", 
+	"https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
 	"https://people.googleapis.com/$discovery/rest?version=v1"
 ];
 var scopes = "https://www.googleapis.com/auth/calendar";
@@ -26,6 +26,7 @@ var IngredientList = [];
 var selectedIngredientList = [];
 var database = firebase.database();
 var userRef = firebase.database().ref('/users');
+var name;
 
 ///////////////////////////////////////////////////////////////////////////////
 // GOOGLE SIGN-IN AND SIGN-OUT FUNCTIONS
@@ -170,7 +171,7 @@ var getRecipe = function(){
 					dataType: 'json',
 					success: function(data) {
 						var img = data.image;
-						var name = data.title;
+						name = data.title;
 						var time = data.readyInMinutes;
 						var steps = data.instructions.slice(0,400);
 						var more = data.sourceUrl;
@@ -186,7 +187,8 @@ var getRecipe = function(){
 										<div class='sub-text'> Ready in: ${time} minutes </div>
 										<br>
 										<div class='text'> Directions : ${steps} ... <a href="${more}"> Read More... </a></div>
-										<button id="GoogleCalendar-btn"> Add to Calendar </button>
+										<button class="google-calendar-btn" id="cal-btn-${i}"> Add to Calendar </button>
+										<input type='text' placeholder='2017/03/29'>
 								</div>
 							</div>
 						`);
@@ -207,6 +209,8 @@ var getRecipe = function(){
 		}
 	});
 };
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -284,6 +288,16 @@ function getCalendarId() {
 ///////////////////////////////////////////////////////////////////////////////
 // CLICK FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
+
+$(document).on('click', '.google-calendar-btn', function(e) {
+		var parent = e.target.parentElement;
+		var recipeName = parent.querySelector('.recipe-name').textContent;
+		var dateValue = parent.querySelector('input').value;
+		console.log(recipeName);
+		console.log(dateValue);
+});
+
+
 
 $("#cal-btn-submit").on('click', function(event){
 	event.preventDefault();
