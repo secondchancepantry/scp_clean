@@ -47,10 +47,14 @@ function initClient() {
 
 		// Handle the initial sign-in state.
 		updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-		authorizeButton.onclick = handleAuthClick;
-		signoutButton.onclick = handleSignoutClick;
+		if (window.location.pathname === "/app.html") {
+			signoutButton.onclick = handleSignoutClick;
+		} else if (window.location.pathname === "/login.html") {
+			authorizeButton.onclick = handleAuthClick;
+		} else {
+			console.log("strange error, man!");
+		}
 	});
-	console.log("hi")
 }
 
 function updateSigninStatus(isSignedIn) {
@@ -58,13 +62,16 @@ function updateSigninStatus(isSignedIn) {
 		if (window.location.pathname === "/login.html") {
 			window.location = "app.html"
 		}
-		authorizeButton.style.display = 'none';
-		signoutButton.style.display = 'block';
+		//authorizeButton.style.display = 'none';
+		//signoutButton.style.display = 'block';
 		getPeopleDetails();
 		getCalendarId();
 	} else {
-		authorizeButton.style.display = 'block';
-		signoutButton.style.display = 'none';
+		if (window.location.pathname === "/app.html") {
+			window.location = "login.html"
+		}
+		//authorizeButton.style.display = 'block';
+		//signoutButton.style.display = 'none';
 	}
 }
 
