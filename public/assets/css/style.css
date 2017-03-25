@@ -246,7 +246,7 @@ label {
   margin: 10px 0 10px 0;
   font-size: 24px;}
 
-input[type='text'], input[type='password'], textarea {
+/*input[type='text'], input[type='password'], textarea {
   background-color: #999;
   color: #333;
   font-size: 24px;
@@ -265,11 +265,11 @@ input[type='submit'], a.add, button, a.show {
   font-family: 'Oswald', 'Futura', sans-serif;
   font-size: 18px;
   text-decoration: none;
-  text-transform: uppercase;}
+  text-transform: uppercase;}*/
 
 input[type='submit'], a.add, button {} 
 
-input[type='text']:focus, input[type='password']:focus, textarea:focus {
+/*input[type='text']:focus, input[type='password']:focus, textarea:focus {
   border: 1px solid #fff;
   background-color: #fff;
   outline: none;}
@@ -277,13 +277,7 @@ input[type='text']:focus, input[type='password']:focus, textarea:focus {
 input[type='submit']:hover, a.add:hover, a.show:hover {
   background-color: #000;
   color: black;
-  cursor: pointer;}
-
-
-::-webkit-input-placeholder {color: #403c3b; font-family: arial, sans-serif;}
-:-moz-placeholder { /* Firefox 18- */ color: #403c3b; font-family: arial, sans-serif;}
-::-moz-placeholder {  /* Firefox 19+ */ color: #403c3b; font-family: arial, sans-serif;}
-:-ms-input-placeholder { color: #403c3b; font-family: arial, sans-serif;}
+  cursor: pointer;}*/
 
 
 textarea {
