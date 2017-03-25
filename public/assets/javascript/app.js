@@ -139,7 +139,7 @@ $(function() {
 		var $this = $(this);
 		var complete = $this.hasClass('complete');
 		var selectedIngredient = $(this).text();
-		$('#selected-ingredients-container').append(`<p class='selectedIngredient'>${selectedIngredient}</p> <br>`);
+		$('#selected-ingredients-container').prepend(`<p class='selectedIngredient'>${selectedIngredient}</p> <br>`);
 		selectedIngredientList.push(selectedIngredient);
 		console.log(selectedIngredientList);
 
@@ -291,7 +291,7 @@ function writeExpirationCalendar(food, date) {
 	});
 
 	request.execute(function(event) {
-		appendPre('Event created: ' + event.htmlLink);
+		appendPre("Event created");
 	})
 }
 
@@ -319,7 +319,7 @@ function writeRecipeCalendar(recipe, url, date) {
 	});
 
 	request.execute(function(event) {
-		appendPre('Event created: ' + event.htmlLink);
+		appendPre("Event created");
 	})
 }
 
@@ -350,6 +350,7 @@ $(document).on('click', '.google-calendar-btn', function(e) {
 		var dateValue = parent.querySelector('input').value;
 		var recipeURL = parent.querySelector('.recipe-url').textContent;
 		writeRecipeCalendar(recipeName, recipeURL, dateValue);
+		$(parent).append('<div id="content" class="alert alert-success" role="alert"></div>')
 });
 
 $("#cal-btn-submit").on('click', function(event){
