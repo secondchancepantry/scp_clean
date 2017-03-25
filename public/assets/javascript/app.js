@@ -14,6 +14,7 @@ var signoutButton = document.getElementById('signout-button');
 var calendarId = "";
 var user = {
 	obj : {},
+	id : "",
 	photo : "",
 	first : "",
 	last : "",
@@ -24,9 +25,11 @@ var ingredients;
 var pantryList = [];
 var IngredientList = [];
 var selectedIngredientList = [];
-var database = firebase.database();
-var userRef = firebase.database().ref('/users');
 var name;
+var test;
+
+$(document).ready(function() {
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // GOOGLE SIGN-IN AND SIGN-OUT FUNCTIONS
@@ -48,21 +51,31 @@ function initClient() {
 
 		// Handle the initial sign-in state.
 		updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-		authorizeButton.onclick = handleAuthClick;
-		signoutButton.onclick = handleSignoutClick;
+		if (window.location.pathname === "/app.html") {
+			signoutButton.onclick = handleSignoutClick;
+		} else if (window.location.pathname === "/login.html") {
+			authorizeButton.onclick = handleAuthClick;
+		} else {
+			console.log("strange error, man!");
+		}
 	});
-	console.log("hi")
 }
 
 function updateSigninStatus(isSignedIn) {
 	if (isSignedIn) {
-		authorizeButton.style.display = 'none';
-		signoutButton.style.display = 'block';
+		if (window.location.pathname === "/login.html") {
+			window.location = "app.html"
+		}
+		//authorizeButton.style.display = 'none';
+		//signoutButton.style.display = 'block';
 		getPeopleDetails();
 		getCalendarId();
 	} else {
-		authorizeButton.style.display = 'block';
-		signoutButton.style.display = 'none';
+		if (window.location.pathname === "/app.html") {
+			window.location = "login.html"
+		}
+		//authorizeButton.style.display = 'block';
+		//signoutButton.style.display = 'none';
 	}
 }
 
@@ -118,6 +131,7 @@ $(function() {
 		$list.append('<li>' + text + '</li>');
 		$('input:text').val('');
 		updateCount();
+		sendToFB(text);
 	});
 
 	//CLICK HANDLING - USES DELEGATION ON <ul> ELEMENT
@@ -145,8 +159,19 @@ $(function() {
 			updateCount();
 		}
 	});
-
 });
+
+function makeSignOutButton() {
+	$('#signout-button').append("Sign Out, " + user.first);
+	$('#signout-button').append('<img src="' + user.photo + '" class="square">');
+}
+
+function populatePantryItems(snapshot) {
+	var item = $("<li>");
+	item.html(snapshot)
+	$('#pantry-ul').append(item);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // SPOONACULAR API CALL AND TABLE DRAW
@@ -171,24 +196,27 @@ var getRecipe = function(){
 					dataType: 'json',
 					success: function(data) {
 						var img = data.image;
-						name = data.title;
+						var name = data.title;
 						var time = data.readyInMinutes;
 						var steps = data.instructions.slice(0,400);
 						var more = data.sourceUrl;
-
-						 console.log((data));
+						console.log((data));
 						$('#result-container').append(`
 							<div class="recipes container">
 								<div class="col-sm-3">
-										<img src="${img}">
+									<img src="${img}">
 								</div>
 								<div class="col-sm-9">
-										<div class='recipe-name'> ${name}</div>
-										<div class='sub-text'> Ready in: ${time} minutes </div>
-										<br>
-										<div class='text'> Directions : ${steps} ... <a href="${more}"> Read More... </a></div>
-										<button class="google-calendar-btn" id="cal-btn-${i}"> Add to Calendar </button>
-										<input type='text' placeholder='2017/03/29'>
+									<div class='recipe-name'>${name}</div>
+									<div class='recipe-url' style="display:hidden">${more}</div>
+									<div class='sub-text'> Ready in: ${time} minutes </div>
+									<br>
+									<div class='text'> Directions : ${steps} ... <a href="${more}">Read More...</a></div>
+									<br>
+									<hr>
+									<div class='sub-text'>Add to calendar on:</div>
+									<input type='text' placeholder='2017-03-29' style="margin:3px 0px">
+									<button class="google-calendar-btn" id="cal-btn-${i}">submit</button>
 								</div>
 							</div>
 						`);
@@ -211,16 +239,9 @@ var getRecipe = function(){
 };
 
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // GOOGLE IDENTITY FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
-
-function drawPeople() {
-	$('#content').append('<img src="' + user.photo + '" height="80px">');
-	$('#content').append('<p>Welcome, ' + user.first + '</p>');
-}
 
 function getPeopleDetails() {
 	gapi.client.people.people.get({
@@ -233,7 +254,8 @@ function getPeopleDetails() {
 		user.last = response.result.names[0].familyName;
 		user.full = response.result.names[0].displayName;
 		user.email = response.result.emailAddresses[0].value;
-		drawPeople();
+		user.id = response.result.metadata.sources[0].id
+		makeSignOutButton()
 	}, function(reason) {
 		console.log('Error: ' + reason.result.error.message);
 	});
@@ -243,7 +265,7 @@ function getPeopleDetails() {
 // GOOGLE CALENDAR FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
 
-function writeCalEvent(food, date) {
+function writeExpirationCalendar(food, date) {
 	var event = {
 		'summary': food + " expires",
 		'description': "use " + food + " by today!",
@@ -273,6 +295,34 @@ function writeCalEvent(food, date) {
 	})
 }
 
+function writeRecipeCalendar(recipe, url, date) {
+	console.log("recipe is " + recipe);
+	console.log("url is " + url);
+	console.log("date is " + recipe);
+	var event = {
+		'summary': recipe,
+		'description': url,
+		'start': {
+			'date': date
+		},
+		'end': {
+			'date': date
+		},
+		'reminders': {
+			'useDefault': true
+		}
+	};
+
+	var request = gapi.client.calendar.events.insert({
+		'calendarId': calendarId,
+		'resource': event
+	});
+
+	request.execute(function(event) {
+		appendPre('Event created: ' + event.htmlLink);
+	})
+}
+
 function getCalendarId() {
 	gapi.client.calendar.calendarList.list({
     }).then(function(response){
@@ -285,6 +335,11 @@ function getCalendarId() {
     });
 }
 
+function sendToFB(ing) {
+	console.log(ing)
+	database.ref("/users/" + user.id + "/ingredients/").push(ing);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // CLICK FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
@@ -293,11 +348,9 @@ $(document).on('click', '.google-calendar-btn', function(e) {
 		var parent = e.target.parentElement;
 		var recipeName = parent.querySelector('.recipe-name').textContent;
 		var dateValue = parent.querySelector('input').value;
-		console.log(recipeName);
-		console.log(dateValue);
+		var recipeURL = parent.querySelector('.recipe-url').textContent;
+		writeRecipeCalendar(recipeName, recipeURL, dateValue);
 });
-
-
 
 $("#cal-btn-submit").on('click', function(event){
 	event.preventDefault();
@@ -311,13 +364,28 @@ $('#search-btn').on('click', function(){
 	getRecipe();
 });
 
+handleClientLoad();
+if (this.readyState === 'complete') this.onload()
+var config = {
+	apiKey: "AIzaSyAjLOCnFetZBaMBqLoAxQOJiuve81ijJlU",
+	authDomain: "secondchancepantry-f65c5.firebaseapp.com",
+	databaseURL: "https://secondchancepantry-f65c5.firebaseio.com",
+	storageBucket: "secondchancepantry-f65c5.appspot.com",
+	messagingSenderId: "1083855170391"
+};
+firebase.initializeApp(config);
+var database = firebase.database();
+
 ///////////////////////////////////////////////////////////////////////////////
-// DOCUMENT READY
+// FIREBASE FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
 
-$(document).ready(function() {
-	handleClientLoad();
-	if (this.readyState === 'complete') this.onload()
+database.ref("/users/" + user.id).on("child_added", function(childSnapshot) {
+	test = childSnapshot.val();
+	for (key in childSnapshot.val().ingredients) {
+		populatePantryItems(childSnapshot.val().ingredients[key]);
+	}
+})
 })
 
 
