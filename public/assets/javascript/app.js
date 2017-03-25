@@ -55,6 +55,9 @@ function initClient() {
 
 function updateSigninStatus(isSignedIn) {
 	if (isSignedIn) {
+		if (window.location.pathname === "/login.html") {
+			window.location = "app.html"
+		}
 		authorizeButton.style.display = 'none';
 		signoutButton.style.display = 'block';
 		getPeopleDetails();
