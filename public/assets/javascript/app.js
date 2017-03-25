@@ -48,21 +48,31 @@ function initClient() {
 
 		// Handle the initial sign-in state.
 		updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-		authorizeButton.onclick = handleAuthClick;
-		signoutButton.onclick = handleSignoutClick;
+		if (window.location.pathname === "/app.html") {
+			signoutButton.onclick = handleSignoutClick;
+		} else if (window.location.pathname === "/login.html") {
+			authorizeButton.onclick = handleAuthClick;
+		} else {
+			console.log("strange error, man!");
+		}
 	});
-	console.log("hi")
 }
 
 function updateSigninStatus(isSignedIn) {
 	if (isSignedIn) {
-		authorizeButton.style.display = 'none';
-		signoutButton.style.display = 'block';
+		if (window.location.pathname === "/login.html") {
+			window.location = "app.html"
+		}
+		//authorizeButton.style.display = 'none';
+		//signoutButton.style.display = 'block';
 		getPeopleDetails();
 		getCalendarId();
 	} else {
-		authorizeButton.style.display = 'block';
-		signoutButton.style.display = 'none';
+		if (window.location.pathname === "/app.html") {
+			window.location = "login.html"
+		}
+		//authorizeButton.style.display = 'block';
+		//signoutButton.style.display = 'none';
 	}
 }
 
@@ -148,6 +158,12 @@ $(function() {
 
 });
 
+function makeSignOutButton() {
+	$('#signout-button').append("Sign Out, " + user.first);
+	$('#signout-button').append('<img src="' + user.photo + '" class="square">');
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // SPOONACULAR API CALL AND TABLE DRAW
 ///////////////////////////////////////////////////////////////////////////////
@@ -171,24 +187,24 @@ var getRecipe = function(){
 					dataType: 'json',
 					success: function(data) {
 						var img = data.image;
-						name = data.title;
+						var name = data.title;
 						var time = data.readyInMinutes;
 						var steps = data.instructions.slice(0,400);
 						var more = data.sourceUrl;
-
-						 console.log((data));
+						console.log((data));
 						$('#result-container').append(`
 							<div class="recipes container">
 								<div class="col-sm-3">
-										<img src="${img}">
+									<img src="${img}">
 								</div>
 								<div class="col-sm-9">
-										<div class='recipe-name'> ${name}</div>
-										<div class='sub-text'> Ready in: ${time} minutes </div>
-										<br>
-										<div class='text'> Directions : ${steps} ... <a href="${more}"> Read More... </a></div>
-										<button class="google-calendar-btn" id="cal-btn-${i}"> Add to Calendar </button>
-										<input type='text' placeholder='2017/03/29'>
+									<div class='recipe-name'>${name}</div>
+									<div class='recipe-url' style="display:hidden">${more}</div>
+									<div class='sub-text'> Ready in: ${time} minutes </div>
+									<br>
+									<div class='text'> Directions : ${steps} ... <a href="${more}">Read More...</a></div>
+									<button class="google-calendar-btn" id="cal-btn-${i}">Add to Calendar</button>
+									<input type='text' placeholder='2017/03/29'>
 								</div>
 							</div>
 						`);
@@ -211,16 +227,9 @@ var getRecipe = function(){
 };
 
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // GOOGLE IDENTITY FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
-
-function drawPeople() {
-	$('#content').append('<img src="' + user.photo + '" height="80px">');
-	$('#content').append('<p>Welcome, ' + user.first + '</p>');
-}
 
 function getPeopleDetails() {
 	gapi.client.people.people.get({
@@ -233,7 +242,7 @@ function getPeopleDetails() {
 		user.last = response.result.names[0].familyName;
 		user.full = response.result.names[0].displayName;
 		user.email = response.result.emailAddresses[0].value;
-		drawPeople();
+		makeSignOutButton()
 	}, function(reason) {
 		console.log('Error: ' + reason.result.error.message);
 	});
@@ -243,7 +252,7 @@ function getPeopleDetails() {
 // GOOGLE CALENDAR FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
 
-function writeCalEvent(food, date) {
+function writeExpirationCalendar(food, date) {
 	var event = {
 		'summary': food + " expires",
 		'description': "use " + food + " by today!",
@@ -260,6 +269,34 @@ function writeCalEvent(food, date) {
 				{'method': 'email', 'minutes': 24 * 60 * 2},
 				{'method': 'popup', 'minutes': 24 * 60 * 1},
 			]
+		}
+	};
+
+	var request = gapi.client.calendar.events.insert({
+		'calendarId': calendarId,
+		'resource': event
+	});
+
+	request.execute(function(event) {
+		appendPre('Event created: ' + event.htmlLink);
+	})
+}
+
+function writeRecipeCalendar(recipe, url, date) {
+	console.log("recipe is " + recipe);
+	console.log("url is " + url);
+	console.log("date is " + date);
+	var event = {
+		'summary': recipe,
+		'description': url,
+		'start': {
+			'date': date
+		},
+		'end': {
+			'date': date
+		},
+		'reminders': {
+			'useDefault': true
 		}
 	};
 
@@ -293,11 +330,9 @@ $(document).on('click', '.google-calendar-btn', function(e) {
 		var parent = e.target.parentElement;
 		var recipeName = parent.querySelector('.recipe-name').textContent;
 		var dateValue = parent.querySelector('input').value;
-		console.log(recipeName);
-		console.log(dateValue);
+		var recipeURL = parent.querySelector('.recipe-url').textContent;
+		writeRecipeCalendar(recipeName, recipeURL, dateValue);
 });
-
-
 
 $("#cal-btn-submit").on('click', function(event){
 	event.preventDefault();

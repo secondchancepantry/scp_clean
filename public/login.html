@@ -62,10 +62,42 @@
 	<div class="container" id='main-container'>
 		<div class="row">
 			<img src="./assets/img/logo.png" class="shake">
-			<button class="btn striped-shadow dark" id="sign-in-btn"><span> SIGN ME IN ! </span></button>
+			<button class="btn striped-shadow dark" id="authorize-button"><span>SIGN ME IN !</span></button>
 		</div>
 		<div class="row"></div>
 	</div>
 </div>
+
+<!--
+################################################################################
+#
+# Javascript Libraries
+#
+################################################################################
+-->
+
+<!-- Google Oath -->
+<script src="https://apis.google.com/js/api.js" async defer ></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/3.7.2/firebase.js"></script>
+<!-- More Firebase -->
+<!-- Why is this here and not in the app.js file? -->
+<script>
+	var config = {
+		apiKey: "AIzaSyAjLOCnFetZBaMBqLoAxQOJiuve81ijJlU",
+		authDomain: "secondchancepantry-f65c5.firebaseapp.com",
+		databaseURL: "https://secondchancepantry-f65c5.firebaseio.com",
+		storageBucket: "secondchancepantry-f65c5.appspot.com",
+		messagingSenderId: "1083855170391"
+	};
+	firebase.initializeApp(config);
+</script>
+<!-- Local JS  -->
+<script src="./assets/javascript/app.js" type="text/javascript"></script>
+<!-- JQuery UI Link -->
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" 
+	integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E="
+	crossorigin="anonymous">
+</script>
 </body>
 </html>
