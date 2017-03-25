@@ -367,21 +367,28 @@ $('#search-btn').on('click', function(){
 
 handleClientLoad();
 if (this.readyState === 'complete') this.onload()
-var config = {
-	apiKey: "AIzaSyAjLOCnFetZBaMBqLoAxQOJiuve81ijJlU",
-	authDomain: "secondchancepantry-f65c5.firebaseapp.com",
-	databaseURL: "https://secondchancepantry-f65c5.firebaseio.com",
-	storageBucket: "secondchancepantry-f65c5.appspot.com",
-	messagingSenderId: "1083855170391"
-};
-firebase.initializeApp(config);
-var database = firebase.database();
+// var config = {
+// 	apiKey: "AIzaSyAjLOCnFetZBaMBqLoAxQOJiuve81ijJlU",
+// 	authDomain: "secondchancepantry-f65c5.firebaseapp.com",
+// 	databaseURL: "https://secondchancepantry-f65c5.firebaseio.com",
+// 	storageBucket: "secondchancepantry-f65c5.appspot.com",
+// 	messagingSenderId: "1083855170391"
+// };
+// firebase.initializeApp(config);
+//var database = firebase.database();
+var userRef = firebase.database().ref("users");
 
 ///////////////////////////////////////////////////////////////////////////////
 // FIREBASE FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
 
-database.ref("/users/" + user.id).on("child_added", function(childSnapshot) {
+userRef.once('value', function(snapshot) {
+	var user = snapshot.val();
+	
+});
+
+
+database.ref("users" + [user.id]).on("child_added", function(childSnapshot) {
 	test = childSnapshot.val();
 	for (key in childSnapshot.val().ingredients) {
 		populatePantryItems(childSnapshot.val().ingredients[key]);
