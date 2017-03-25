@@ -1,0 +1,28 @@
+{
+  "name": "second-chance-pantry",
+  "version": "0.2.5",
+  "description": "A sample Node.js app using Express 4",
+  "engines": {
+    "node": "6.10.0",
+    "npm": "3.10.10"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "ejs": "2.4.1",
+    "express": "4.13.3",
+    "firebase": "^3.7.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heroku/second-chance-pantry"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ],
+  "license": "MIT"
+}
