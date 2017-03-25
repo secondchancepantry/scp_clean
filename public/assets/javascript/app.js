@@ -139,7 +139,7 @@ $(function() {
 		var $this = $(this);
 		var complete = $this.hasClass('complete');
 		var selectedIngredient = $(this).text();
-		$('#selected-ingredients-container').append(`<p class='selectedIngredient'>${selectedIngredient}</p> <br>`);
+		$('#selected-ingredients-container').prepend(`<p class='selectedIngredient'>${selectedIngredient}</p> <br>`);
 		selectedIngredientList.push(selectedIngredient);
 		console.log(selectedIngredientList);
 

@@ -234,6 +234,14 @@ em.seasonal
   background-repeat: no-repeat;
   padding-left: 30px;}
 
+.bottom
+{
+	position:absolute;
+ 	bottom:0;
+ 	float: left;
+ 	margin-right: auto;
+ 	margin-left: auto;
+}
 
 /* FORM STYLES */
 
@@ -246,7 +254,7 @@ label {
   margin: 10px 0 10px 0;
   font-size: 24px;}
 
-input[type='text'], input[type='password'], textarea {
+/*input[type='text'], input[type='password'], textarea {
   background-color: #999;
   color: #333;
   font-size: 24px;
@@ -265,7 +273,7 @@ input[type='submit'], a.add, button, a.show {
   font-family: 'Oswald', 'Futura', sans-serif;
   font-size: 18px;
   text-decoration: none;
-  text-transform: uppercase;}
+  text-transform: uppercase;}*/
 
 input[type='submit'], a.add, button {} 
 
